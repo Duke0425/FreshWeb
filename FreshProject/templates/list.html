@@ -1,0 +1,160 @@
+
+{% extends 'base_main.html'%}
+{% block title %}
+天天 生鲜-商品列表
+{% endblock %}
+
+
+{% block content %}
+	<div class="navbar_con">
+		<div class="navbar clearfix">
+			<div class="subnav_con fl">
+				<h1>全部商品分类</h1>	
+				<span></span>			
+				<ul class="subnav">
+					<li><a href="{% url 'goods:list' 1  %}" class="fruit">新鲜水果</a></li>
+					<li><a href="{% url 'goods:list' 2  %}" class="seafood">海鲜水产</a></li>
+					<li><a href="{% url 'goods:list' 3  %}" class="meet">猪牛羊肉</a></li>
+					<li><a href="{% url 'goods:list' 4  %}" class="egg">禽类蛋品</a></li>
+					<li><a href="{% url 'goods:list' 5  %}" class="vegetables">新鲜蔬菜</a></li>
+					<li><a href="{% url 'goods:list' 6  %}" class="ice">速冻食品</a></li>
+				</ul>
+			</div>
+			<ul class="navlist fl">
+				<li><a href="{% url 'goods:index' %}">首页</a></li>
+				<li class="interval">|</li>
+				<li><a href="">手机生鲜</a></li>
+				<li class="interval">|</li>
+				<li><a href="">抽奖</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="breadcrumb">
+		<a href="{% url 'goods:list' 0 %}">全部分类</a>
+		{% for ctype in category_type %}
+            {% if cate.category_type == ctype.0 %}
+		<span>></span>
+
+		<a href="{% url 'goods:list' cate.id %}">{{ ctype.1 }}</a>
+		                {% endif %}
+             {% endfor %}
+	</div>
+
+	<div class="main_wrap clearfix">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul>
+					{% for new_goods in new %}
+					<li>
+						<a href="{% url 'goods:detail' new_goods.id %}"><img src="/media/{{ new_goods.goods_front_image }}"></a>
+						<h4><a href="{% url 'goods:detail' new_goods.id %}">{{ new_goods.name }}</a></h4>
+						<div class="prize">￥{{ new_goods.shop_price }}</div>
+					</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+
+		<div class="r_wrap fr clearfix">
+			<div class="sort_bar">
+				<a href="#" class="active">默认</a>
+				<a href="#">价格</a>
+				<a href="#">人气</a>
+			</div>
+
+			<ul class="goods_type_list clearfix">
+				{% for good in goods %}
+				<li>
+					<a href="{% url 'goods:detail' good.id %}"><img src="/media/{{ good.goods_front_image }}"></a>
+					<h4><a href="{% url 'goods:detail' good.id %}">{{ good.name }}</a></h4>
+					<div class="operate">
+						<span class="prize">￥{{ good.shop_price }}</span>
+						<span class="unit">{{ good.shop_price }}/500g</span>
+						<a href="javascript:;" class="add_goods" title="加入购物车"
+						onclick="add_cart({{ good.id }});"></a>
+						{% csrf_token %}
+						<script>
+					function add_cart(id){
+                    var csrf = $('input[name="csrfmiddlewaretoken"]').val()
+                    $.ajax({
+                        url:'/shopcart/add_cart/',
+                        type:'POST',
+                        data:{'goods_id':id, 'goods_num': 1},
+                        headers:{'X-CSRFToken': csrf},
+                        dataType:'json',
+                        success: function(data){
+                            if(data.code == '200'){
+                                $('#show_count').text(data.count)
+                            }
+                        },
+                        error: function(data){
+                            alert('失败')
+                        }
+                    })
+                }
+						</script>
+					</div>
+				</li>
+				{% endfor %}
+			</ul>
+
+			<div class="pagenation">
+				{% if cate %}
+					{% if goods.has_previous %}
+					<a href="{% url 'goods:list' cate.id %}?page={{ goods.previous_page_number }}"><上一页</a>
+					{% endif %}
+
+					{% for i in goods.paginator.page_range %}
+					<a href="{% url 'goods:list' cate.id %}?page={{ i }}" class="active">{{ i }}</a>
+					{% endfor %}
+
+					{% if goods.has_next %}
+					<a href="{% url 'goods:list' cate.id %}?page={{ goods.next_page_number }}">下一页></a>
+					{% endif %}
+
+				{% else %}
+
+					{% if goods.has_previous %}
+					<a href="{% url 'goods:list' 0 %}?page={{ goods.previous_page_number }}"><上一页</a>
+					{% endif %}
+
+					{% for i in goods.paginator.page_range %}
+					<a href="{% url 'goods:list' 0 %}?page={{ i }}" class="active">{{ i }}</a>
+					{% endfor %}
+
+					{% if goods.has_next %}
+					<a href="{% url 'goods:list' 0 %}?page={{ goods.next_page_number }}">下一页></a>
+					{% endif %}
+				{% endif %}
+
+
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block js2 %}
+	<script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript">
+		var $add_x = $('#add_cart').offset().top;
+		var $add_y = $('#add_cart').offset().left;
+
+		var $to_x = $('#show_count').offset().top;
+		var $to_y = $('#show_count').offset().left;
+
+		$(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
+		$('#add_cart').click(function(){
+			$(".add_jump").stop().animate({
+				'left': $to_y+7,
+				'top': $to_x+7},
+				"fast", function() {
+					$(".add_jump").fadeOut('fast',function(){
+					});
+
+			});
+		})
+	</script>
+{% endblock %}

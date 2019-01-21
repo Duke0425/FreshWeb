@@ -1,0 +1,107 @@
+
+{% extends 'base_main.html' %}
+
+{% block title %}
+	天天生鲜-首页
+{% endblock %}
+
+{% block js1 %}
+	{{ block.super }}
+	<script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="/static/js/slide.js"></script>
+{% endblock %}
+
+
+{% block content %}
+	<div class="navbar_con">
+		<div class="navbar">
+			<h1 class="fl">全部商品分类</h1>
+			<ul class="navlist fl">
+				<li><a href="">首页</a></li>
+				<li class="interval">|</li>
+				<li><a href="">手机生鲜</a></li>
+				<li class="interval">|</li>
+				<li><a href="">抽奖</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="center_con clearfix">
+		<ul class="subnav fl">
+			<li><a href="#model1" class="fruit">新鲜水果</a></li>
+			<li><a href="#model2" class="seafood">海鲜水产</a></li>
+			<li><a href="#model3" class="meet">猪牛羊肉</a></li>
+			<li><a href="#model4" class="egg">禽类蛋品</a></li>
+			<li><a href="#model5" class="vegetables">新鲜蔬菜</a></li>
+			<li><a href="#model6" class="ice">速冻食品</a></li>
+		</ul>
+		<div class="slide fl">
+			<ul class="slide_pics">
+				<li><img src="/static/images/slide.jpg" alt="幻灯片"></li>
+				<li><img src="/static/images/slide02.jpg" alt="幻灯片"></li>
+				<li><img src="/static/images/slide03.jpg" alt="幻灯片"></li>
+				<li><img src="/static/images/slide04.jpg" alt="幻灯片"></li>
+			</ul>
+			<div class="prev"></div>
+			<div class="next"></div>
+			<ul class="points"></ul>
+		</div>
+		<div class="adv fl">
+			<a href="#"><img src="/static/images/adv01.jpg"></a>
+			<a href="#"><img src="/static/images/adv02.jpg"></a>
+		</div>
+	</div>
+
+	{% for ct in cate %}
+	<div class="list_model">
+		<div class="list_title clearfix">
+            {% for ctype in category_type %}
+            {% if ct.category_type == ctype.0%}
+			<h3 class="fl" id="model{{ ct.id }}">{{ ctype.1 }}</h3>
+			<div class="subtitle fl">
+                {% endif %}
+             {% endfor %}
+			</div>
+			<a href="{% url 'goods:list' ct.id %}" class="goods_more fr" id="fruit_more">查看更多 ></a>
+		</div>
+
+		<div class="goods_con clearfix">
+			<div class="goods_banner fl"><img src="/media/{{ ct.category_front_image }}"></div>
+			<ul class="goods_list fl">
+				{% for gd in goods %}
+				{% if gd.category == ct %}
+				<li>
+					<h4><a href="{% url 'goods:detail' gd.id %}">{{ gd.name }}</a></h4>
+					<a href="{% url 'goods:detail' gd.id %}"><img src="/media/{{ gd.goods_front_image }}"></a>
+					<div class="prize">¥ {{ gd.market_price }}</div>
+				</li>
+				{% endif %}
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+	{% endfor %}
+
+
+{% endblock %}
+
+{% block js2 %}
+	<script type="text/javascript" src="/static/js/slide.js"></script>
+	<script type="text/javascript">
+
+		BCSlideshow('focuspic');
+		var oFruit = document.getElementById('fruit_more');
+		var oShownum = document.getElementById('show_count');
+
+		var hasorder = localStorage.getItem('order_finish');
+
+		if(hasorder)
+		{
+			oShownum.innerHTML = '2';
+		}
+
+		oFruit.onclick = function(){
+			window.location.href = 'list.html';
+		}
+	</script>
+{% endblock %}
